@@ -1,0 +1,12 @@
+---
+- name: Apply STIG kernel parameters
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_file: "{{ kernel_params_file }}"
+    state: present
+    reload: true
+    sysctl_set: true
+  loop: "{{ kernel_params | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"

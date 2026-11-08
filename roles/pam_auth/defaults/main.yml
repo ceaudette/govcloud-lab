@@ -1,0 +1,41 @@
+---
+# DISA STIG RHEL 10 — authentication, password quality, lockout
+# Configures the files authselect READS. Never edits /etc/pam.d/* directly.
+
+pwquality:
+  dcredit: -1
+  ucredit: -1
+  lcredit: -1
+  ocredit: -1
+  difok: 8
+  minlen: 15
+  minclass: 4
+  maxrepeat: 3
+  maxclassrepeat: 4
+  dictcheck: 1
+  retry: 3
+
+# Presence-only flags (no value)
+pwquality_flags:
+  - enforce_for_root
+
+faillock:
+  deny: 3
+  fail_interval: 900
+  unlock_time: 900
+  dir: /var/log/faillock
+
+# Presence-only flags. 'silent' deliberately omitted — suppressing
+# lockout messages hides the control's behavior during testing.
+faillock_flags:
+  - audit
+  - even_deny_root
+
+login_defs:
+  PASS_MAX_DAYS: 60
+  PASS_MIN_DAYS: 1
+  FAIL_DELAY: 4
+
+account_inactive_days: 35
+shell_tmout: 600
+max_logins: 10

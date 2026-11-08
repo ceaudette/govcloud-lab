@@ -1,0 +1,10 @@
+---
+- name: STIG baseline
+  hosts: linux
+  become: true
+  roles:
+    - ssh_hardening
+    - kernel_params
+    - pam_auth
+    - pam_auth
+    - pam_auth

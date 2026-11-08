@@ -1,0 +1,27 @@
+---
+# DISA STIG RHEL 10 — sshd_config controls
+# Drop-in file; the main sshd_config is left untouched.
+ssh_dropin_path: /etc/ssh/sshd_config.d/00-stig-hardening.conf
+
+ssh_permit_root_login: "no"
+ssh_permit_empty_passwords: "no"
+ssh_pubkey_authentication: "yes"
+ssh_strict_modes: "yes"
+ssh_ignore_rhosts: "yes"
+ssh_ignore_user_known_hosts: "yes"
+ssh_permit_user_environment: "no"
+ssh_x11_forwarding: "no"
+ssh_x11_use_localhost: "yes"
+ssh_print_last_log: "yes"
+ssh_log_level: "VERBOSE"
+ssh_rekey_limit: "1G 1h"
+ssh_client_alive_interval: 600
+ssh_client_alive_count_max: 1
+ssh_banner: /etc/issue
+
+# Deviation: STIG requires both disabled. Setting these to "yes"
+# preserves Kerberos SSO on AD-joined hosts and must be documented
+# as an exception.
+ssh_gssapi_authentication: "no"
+ssh_kerberos_authentication: "no"
+ssh_hostbased_authentication: "no"

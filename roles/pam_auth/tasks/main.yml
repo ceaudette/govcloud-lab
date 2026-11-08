@@ -1,0 +1,83 @@
+---
+- name: Configure password quality requirements
+  ansible.builtin.lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: "^#?\\s*{{ item.key }}\\s*="
+    line: "{{ item.key }} = {{ item.value }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop: "{{ pwquality | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: Configure account lockout
+  ansible.builtin.lineinfile:
+    path: /etc/security/faillock.conf
+    regexp: "^#?\\s*{{ item.key }}\\b"
+    line: "{{ item.key }} = {{ item.value }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop: "{{ faillock | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: Enable faillock in the authselect profile
+  ansible.builtin.command:
+    cmd: authselect enable-feature with-faillock
+  register: authselect_faillock
+  changed_when: "'already enabled' not in authselect_faillock.stdout"
+
+- name: Configure password aging and umask
+  ansible.builtin.lineinfile:
+    path: /etc/login.defs
+    regexp: "^#?\\s*{{ item.key }}\\s"
+    line: "{{ item.key }} {{ item.value }}"
+    backrefs: false
+    owner: root
+    group: root
+    mode: '0644'
+  loop: "{{ login_defs | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: Set account inactivity lock after password expiration
+  ansible.builtin.lineinfile:
+    path: /etc/default/useradd
+    regexp: '^INACTIVE='
+    line: "INACTIVE={{ account_inactive_days }}"
+
+- name: Set shell idle timeout
+  ansible.builtin.copy:
+    dest: /etc/profile.d/tmout.sh
+    content: |
+      # Managed by Ansible — pam_auth role
+      declare -xr TMOUT={{ shell_tmout }}
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Limit concurrent login sessions
+  ansible.builtin.copy:
+    dest: /etc/security/limits.d/99-stig-maxlogins.conf
+    content: |
+      # Managed by Ansible — pam_auth role
+      * hard maxlogins {{ max_logins }}
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Enable presence-only pwquality flags
+  ansible.builtin.lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: "^#?\\s*{{ item }}\\s*$"
+    line: "{{ item }}"
+  loop: "{{ pwquality_flags }}"
+
+- name: Enable presence-only faillock flags
+  ansible.builtin.lineinfile:
+    path: /etc/security/faillock.conf
+    regexp: "^#?\\s*{{ item }}\\s*$"
+    line: "{{ item }}"
+  loop: "{{ faillock_flags }}"

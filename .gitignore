@@ -1,0 +1,17 @@
+# Scan results and reports
+*.html
+*.xml
+arf*.xml
+tags.txt
+
+# Logs
+*.log
+
+# Keys and secrets
+*.pem
+*.key
+id_*
+vault-password*
+
+# Ansible retry files
+*.retry
