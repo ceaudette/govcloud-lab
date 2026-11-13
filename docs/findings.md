@@ -100,3 +100,25 @@ back to the 2022 benchmark or DISA GPO packages.
 `ApplyAndMonitor`, which can enact a staged configuration on its own
 consistency-check schedule. On a domain controller that risks cutting WinRM and
 RDP unattended. Set `ApplyOnly` before staging anything.
+
+## 6. Account lockout silently fails on AD-joined hosts
+
+`pam_faillock` configured identically via Ansible on two RHEL 10 hosts:
+an AD-joined VM using the authselect `custom/hardening` profile, and a
+standalone EC2 instance using the `local` profile. Identical SSG content
+(0.1.82-2), identical `/etc/security/faillock.conf`, both passing SCAP
+validation.
+
+On the standalone host, failed `su` attempts are recorded correctly. On the
+AD-joined host, zero failures are recorded across SSH, `su`, and `sudo`,
+verified against independent `pam_lastlog` counters.
+
+The distinguishing factor is PAM stack composition. The `local` profile places
+`pam_faillock.so authfail` with no intervening modules. The domain-joined stack
+places it after `pam_sss.so forward_pass` and behind a `pam_usertype.so
+isregular` branch (`default=1`), which can skip the `authfail` line on
+local-account failures.
+
+**Impact:** a DoD environment running AD-joined RHEL — the standard
+configuration — may have a non-functional lockout control that passes every
+compliance scan.
