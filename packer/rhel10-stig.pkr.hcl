@@ -28,7 +28,7 @@ build {
 
   provisioner "shell" {
     inline = [
-      "sudo dnf install -y git ansible-core",
+      "sudo dnf install -y git ansible-core openscap-scanner scap-security-guide",
       "git clone https://github.com/ceaudette/govcloud-lab.git /tmp/govcloud-lab",
       "ansible-galaxy install -r /tmp/govcloud-lab/requirements.yml"
     ]
@@ -38,7 +38,7 @@ build {
     inline = [
       "cd /tmp/govcloud-lab",
       "printf '[linux]\nlocalhost ansible_connection=local\n' > inventory-build.ini",
-      "printf -- '---\n- name: STIG baseline\n  hosts: linux\n  become: true\n  roles:\n    - kernel_params\n    - pam_auth\n' > build.yml",
+      "printf -- '---\n- name: STIG baseline\n  hosts: linux\n  become: true\n  roles:\n    - kernel_params\n    - pam_auth\n    - ssh_hardening\n' > build.yml",
       "ansible-playbook -i inventory-build.ini build.yml"
     ]
   }

@@ -122,3 +122,25 @@ local-account failures.
 **Impact:** a DoD environment running AD-joined RHEL — the standard
 configuration — may have a non-functional lockout control that passes every
 compliance scan.
+
+## 7. Weighted compliance scores are a poor progress signal
+
+Three successive AMI builds, each adding hardening:
+
+| Build | Score |
+|---|---|
+| Stock RHEL 10 AMI | 47.99% |
+| `kernel_params` + `pam_auth` | 50.68% |
+| plus `ssh_hardening` and SELinux fcontext | 50.86% |
+
+The third build added 17 sshd controls and fixed the faillock SELinux
+labeling — 18 additional rules passing — for 0.18 points.
+
+XCCDF weights rules by group, so a large unaddressed family dilutes every
+other change. Here the 74-rule audit family dominates the denominator. The
+same roles applied against a fully remediated host scored 93.68%, because
+nothing was left unaddressed to absorb the weight.
+
+A compliance percentage says little on its own. Which controls fail, and why,
+is the useful artifact — and as section 6 shows, a passing control is not
+necessarily a working one.
