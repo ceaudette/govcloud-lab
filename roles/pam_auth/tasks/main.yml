@@ -81,3 +81,18 @@
     regexp: "^#?\\s*{{ item }}\\s*$"
     line: "{{ item }}"
   loop: "{{ faillock_flags }}"
+
+- name: Add SELinux file context mapping for the faillock directory
+  community.general.sefcontext:
+    target: "{{ faillock.dir }}(/.*)?"
+    setype: faillog_t
+    state: present
+  notify: Restore faillock SELinux context
+
+- name: Ensure faillock directory exists
+  ansible.builtin.file:
+    path: "{{ faillock.dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'

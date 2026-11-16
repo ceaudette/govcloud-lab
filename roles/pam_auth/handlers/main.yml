@@ -1,0 +1,4 @@
+---
+- name: Restore faillock SELinux context
+  ansible.builtin.command:
+    cmd: "restorecon -Rv {{ faillock.dir }}"
