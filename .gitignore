@@ -15,3 +15,9 @@ vault-password*
 
 # Ansible retry files
 *.retry
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
